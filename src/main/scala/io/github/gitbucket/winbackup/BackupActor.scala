@@ -4,7 +4,6 @@ import java.io.File
 
 import akka.actor.{Actor, Props}
 import akka.event.Logging
-import com.github.zafarkhaja.semver.{Version => Semver}
 import gitbucket.core.model.Profile.profile.blockingApi._
 import gitbucket.core.service.{AccountService, RepositoryService}
 import gitbucket.core.servlet.Database
@@ -19,7 +18,7 @@ class BackupActor extends Actor with AccountService with RepositoryService {
 
   override def receive: Receive = {
     case _: DoBackup => {
-      logger.info("Do backup")
+      val startTimeMillis = System.currentTimeMillis()
 
       val backupDest = new File(Directory.GitBucketHome, "backup-" + System.currentTimeMillis())
 
@@ -38,6 +37,9 @@ class BackupActor extends Actor with AccountService with RepositoryService {
           JGitUtil.cloneRepository(src, dest)
         }
       }
+
+      val endTimeMillis = System.currentTimeMillis()
+      logger.info(s"Backup complete in ${endTimeMillis - startTimeMillis} ms")
     }
   }
 
