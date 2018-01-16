@@ -30,11 +30,12 @@ class BackupActor extends Actor with AccountService with RepositoryService {
 
         for (
           user <- getAllUsers();
-          (userName, repoName) <- getAllRepositories(user.userName)
+          repo <- getRepositoryNamesOfUser(user.userName)
         ) {
-          val src = Directory.getRepositoryDir(userName, repoName)
-          val dest = new File(new File(backupDest, userName), repoName)
+          val src = Directory.getRepositoryDir(user.userName, repo)
+          val dest = new File(new File(backupDest, user.userName), repo)
           JGitUtil.cloneRepository(src, dest)
+          logger.info(s"${user.userName} ${repo}")
         }
       }
 
