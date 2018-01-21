@@ -39,7 +39,7 @@ class BackupActor extends Actor with AccountService with RepositoryService {
         val sqlBackup = new File(backupDest, "gitbucket.sql")
         FileUtils.copyFile(sqlFile, sqlBackup)
 
-        implicit val timeout: Timeout = Timeout(5 seconds)
+        implicit val timeout: Timeout = Timeout(1 minutes)
 
         val repos = (for {
           user <- getAllUsers()
