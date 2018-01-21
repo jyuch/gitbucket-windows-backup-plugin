@@ -1,6 +1,8 @@
 package io.github.gitbucket.winbackup
 
 import java.io.File
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 import akka.actor.{Actor, Props}
 import akka.event.Logging
@@ -19,8 +21,10 @@ class BackupActor extends Actor with AccountService with RepositoryService {
   override def receive: Receive = {
     case _: DoBackup => {
       val startTimeMillis = System.currentTimeMillis()
+      val now = LocalDateTime.now
+      val f = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")
 
-      val backupDest = new File(Directory.GitBucketHome, "backup-" + System.currentTimeMillis())
+      val backupDest = new File(Directory.GitBucketHome, "backup-" + f.format(now))
 
       Database() withTransaction { implicit session =>
         val allTables = session.conn.allTableNames()
