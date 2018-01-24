@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class BackupActor extends Actor with AccountService with RepositoryService {
+class BackupActor(zipDest: Option[String]) extends Actor with AccountService with RepositoryService {
 
   private val logger = Logging(context.system, this)
   private val cloner = context.actorOf(RepositoryCloneActor.props)
@@ -59,6 +59,12 @@ class BackupActor extends Actor with AccountService with RepositoryService {
         Future.sequence(repos) foreach {
           case _ => {
             ZipUtil.pack(backupDest, zip)
+            for {
+              z <- zipDest
+            } {
+              val dest = new File(z, zip.getName())
+              FileUtils.moveFile(zip, dest)
+            }
             FileUtils.deleteDirectory(backupDest)
             logger.info("Backup complete")
           }
@@ -71,8 +77,8 @@ class BackupActor extends Actor with AccountService with RepositoryService {
 
 object BackupActor {
 
-  def props = {
-    Props[BackupActor]
+  def props(zipDest: Option[String]) = {
+    Props[BackupActor](new BackupActor(zipDest))
   }
 
   sealed case class DoBackup()
