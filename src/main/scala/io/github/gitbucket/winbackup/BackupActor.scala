@@ -16,6 +16,7 @@ import gitbucket.core.util.JDBCUtil.RichConnection
 import io.github.gitbucket.winbackup.BackupActor.DoBackup
 import io.github.gitbucket.winbackup.RepositoryCloneActor.Clone
 import org.apache.commons.io.FileUtils
+import org.zeroturnaround.zip.ZipUtil
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -29,9 +30,10 @@ class BackupActor extends Actor with AccountService with RepositoryService {
   override def receive: Receive = {
     case _: DoBackup => {
       val now = LocalDateTime.now
-      val f = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")
+      val f = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")
 
       val backupDest = new File(Directory.GitBucketHome, "backup-" + f.format(now))
+      val zip = new File(Directory.GitBucketHome, "backup-" + f.format(now) + ".zip")
 
       Database() withTransaction { implicit session =>
         val allTables = session.conn.allTableNames()
@@ -55,7 +57,11 @@ class BackupActor extends Actor with AccountService with RepositoryService {
         }).flatten.map(cloner ? _)
 
         Future.sequence(repos) foreach {
-          case _ => logger.info("Backup complete")
+          case _ => {
+            ZipUtil.pack(backupDest, zip)
+            FileUtils.deleteDirectory(backupDest)
+            logger.info("Backup complete")
+          }
         }
       }
     }
