@@ -19,3 +19,4 @@ zipDest = """C:\zip-dest"""
 - database content
 - user repository
 - wiki repository
+- repository files directory
