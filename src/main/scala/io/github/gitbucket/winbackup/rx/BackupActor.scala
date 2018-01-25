@@ -46,10 +46,10 @@ class BackupActor(zipDest: Option[String]) extends Actor with AccountService wit
           repo <- getRepositoryNamesOfUser(user.userName)
         } yield {
           val src = gDirectory.getRepositoryDir(user.userName, repo)
-          val dest = new File(new File(tempBackupDir, user.userName), repo + ".git")
+          val dest = Directory.getRepositoryBackupDir(tempBackupDir, user.userName, repo)
 
           val wikiSrc = gDirectory.getWikiRepositoryDir(user.userName, repo)
-          val wikiDest = new File(new File(tempBackupDir, user.userName), repo + ".wiki.git")
+          val wikiDest = Directory.getWikiBackupDir(tempBackupDir, user.userName, repo)
 
           List(Clone(src.getAbsolutePath, dest.getAbsolutePath), Clone(wikiSrc.getAbsolutePath, wikiDest.getAbsolutePath))
         }).flatten.map(cloner ? _)

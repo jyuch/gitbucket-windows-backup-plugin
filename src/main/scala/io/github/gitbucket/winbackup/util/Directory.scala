@@ -14,4 +14,12 @@ object Directory {
     val f = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
     s"backup-${f.format(now)}"
   }
+
+  def getRepositoryBackupDir(baseDir: File, user: String, repoName: String): File = {
+    new File(new File(new File(baseDir, "repositories"), user), s"${repoName}.git")
+  }
+
+  def getWikiBackupDir(baseDir: File, user: String, repoName: String): File = {
+    new File(new File(new File(baseDir, "repositories"), user), s"${repoName}.wiki.git")
+  }
 }
