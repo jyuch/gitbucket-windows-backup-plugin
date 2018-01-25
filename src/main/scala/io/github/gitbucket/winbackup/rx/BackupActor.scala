@@ -25,7 +25,7 @@ import scala.language.postfixOps
 class BackupActor(zipDest: Option[String]) extends Actor with AccountService with RepositoryService {
 
   private val logger = Logging(context.system, this)
-  private val cloner = context.actorOf(RepositoryCloneActor.props)
+  private val cloner = context.actorOf(RepositoryCloneActor.props, "cloner")
 
   override def receive: Receive = {
     case _: DoBackup => {
@@ -41,20 +41,16 @@ class BackupActor(zipDest: Option[String]) extends Actor with AccountService wit
 
         implicit val timeout: Timeout = Timeout(1 minutes)
 
-        val repos = (for {
+        val repos = for {
           user <- getAllUsers()
           repo <- getRepositoryNamesOfUser(user.userName)
         } yield {
-          val src = gDirectory.getRepositoryDir(user.userName, repo)
-          val dest = Directory.getRepositoryBackupDir(tempBackupDir, user.userName, repo)
+          Clone(tempBackupDir.getAbsolutePath, user.userName, repo)
+        }
 
-          val wikiSrc = gDirectory.getWikiRepositoryDir(user.userName, repo)
-          val wikiDest = Directory.getWikiBackupDir(tempBackupDir, user.userName, repo)
+        val c = repos.map(cloner ? _)
 
-          List(Clone(src.getAbsolutePath, dest.getAbsolutePath), Clone(wikiSrc.getAbsolutePath, wikiDest.getAbsolutePath))
-        }).flatten.map(cloner ? _)
-
-        Future.sequence(repos) foreach { _ =>
+        Future.sequence(c) foreach { _ =>
           val zip = new File(zipDest.getOrElse(gDirectory.GitBucketHome), s"${backupName}.zip")
           ZipUtil.pack(tempBackupDir, zip)
           FileUtils.deleteDirectory(tempBackupDir)

@@ -22,4 +22,8 @@ object Directory {
   def getWikiBackupDir(baseDir: File, user: String, repoName: String): File = {
     new File(new File(new File(baseDir, "repositories"), user), s"${repoName}.wiki.git")
   }
+
+  def getRepositoryFilesBackupDir(baseDir: File, user: String, repoName: String): File = {
+    new File(new File(new File(baseDir, "repositories"), user), repoName)
+  }
 }
