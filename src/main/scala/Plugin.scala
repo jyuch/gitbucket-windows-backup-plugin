@@ -6,9 +6,9 @@ import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
 import com.typesafe.config.{Config, ConfigFactory}
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.service.SystemSettingsService
-import gitbucket.core.util.Directory
 import io.github.gitbucket.solidbase.model.Version
-import io.github.gitbucket.winbackup.BackupActor
+import io.github.gitbucket.winbackup.rx.BackupActor
+import io.github.gitbucket.winbackup.util.Directory
 import org.slf4j.LoggerFactory
 
 class Plugin extends gitbucket.core.plugin.Plugin {
@@ -22,7 +22,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 
   private val logger = LoggerFactory.getLogger(classOf[Plugin])
 
-  private val config = ConfigFactory.parseFile(new File(Directory.GitBucketHome, "backup.conf"))
+  private val config = ConfigFactory.parseFile(Directory.BackupConf)
 
   private val system = ActorSystem("winbackup", config)
 

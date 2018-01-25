@@ -1,11 +1,11 @@
-package io.github.gitbucket.winbackup
+package io.github.gitbucket.winbackup.rx
 
 import java.io.File
 
 import akka.actor.{Actor, Props}
 import akka.event.Logging
 import gitbucket.core.util.JGitUtil
-import io.github.gitbucket.winbackup.RepositoryCloneActor.Clone
+import io.github.gitbucket.winbackup.rx.RepositoryCloneActor.Clone
 
 class RepositoryCloneActor extends Actor {
   private[this] val logger = Logging(context.system, this)
@@ -14,7 +14,7 @@ class RepositoryCloneActor extends Actor {
     case Clone(src, dest) => {
       JGitUtil.cloneRepository(new File(src), new File(dest))
       logger.info("Clone repository {} -> {}", src, dest)
-      sender() ! ()
+      sender() ! ((): Unit)
     }
   }
 }
