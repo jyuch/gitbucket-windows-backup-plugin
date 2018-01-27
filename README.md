@@ -20,3 +20,10 @@ zipDest = """C:\zip-dest"""
 - user repository
 - wiki repository
 - repository files directory
+
+## Compatibility with GitBucket
+
+|Plugin version|GitBucket version|
+|:-:|:-:|
+|0.2.0|4.20|
+|0.1.0|4.20|
