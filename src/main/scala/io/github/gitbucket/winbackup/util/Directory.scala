@@ -26,4 +26,8 @@ object Directory {
   def getRepositoryFilesBackupDir(baseDir: File, user: String, repoName: String): File = {
     new File(new File(new File(baseDir, "repositories"), user), repoName)
   }
+
+  def getDataBackupDir(baseDir: File): File = {
+    new File(baseDir, "data")
+  }
 }

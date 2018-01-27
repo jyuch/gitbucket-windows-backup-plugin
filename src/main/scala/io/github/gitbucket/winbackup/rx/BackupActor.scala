@@ -51,6 +51,9 @@ class BackupActor(zipDest: Option[String]) extends Actor with AccountService wit
         val c = repos.map(cloner ? _)
 
         Future.sequence(c) foreach { _ =>
+          val data = Directory.getDataBackupDir(tempBackupDir)
+          FileUtils.copyDirectory(new File(gDirectory.DatabaseHome), data)
+
           val zip = new File(zipDest.getOrElse(gDirectory.GitBucketHome), s"${backupName}.zip")
           ZipUtil.pack(tempBackupDir, zip)
           FileUtils.deleteDirectory(tempBackupDir)
