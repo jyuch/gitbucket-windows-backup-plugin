@@ -18,11 +18,11 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class BackupActor(zipDest: Option[String]) extends Actor with AccountService with RepositoryService {
+class BackupActor(zipDest: Option[String], maxZip: Option[Int]) extends Actor with AccountService with RepositoryService {
 
   private val db = context.actorOf(DatabaseAccessActor.props, "db")
   private val cloner = context.actorOf(RepositoryCloneActor.props, "cloner")
-  private val packer = context.actorOf(FinishingActor.props(zipDest), "packer")
+  private val packer = context.actorOf(FinishingActor.props(zipDest, maxZip), "packer")
 
   override def receive: Receive = {
     case _: DoBackup => {
@@ -46,8 +46,8 @@ class BackupActor(zipDest: Option[String]) extends Actor with AccountService wit
 
 object BackupActor {
 
-  def props(zipDest: Option[String]) = {
-    Props[BackupActor](new BackupActor(zipDest))
+  def props(zipDest: Option[String], maxZip: Option[Int]) = {
+    Props[BackupActor](new BackupActor(zipDest, maxZip))
   }
 
   sealed case class DoBackup()

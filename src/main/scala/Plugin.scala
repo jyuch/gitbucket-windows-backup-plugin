@@ -1,4 +1,3 @@
-import java.io.File
 import javax.servlet.ServletContext
 
 import akka.actor.ActorSystem
@@ -30,8 +29,9 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     super.initialize(registry, context, settings)
 
     val scheduler = QuartzSchedulerExtension(system)
-    val zipDest = config.getOptionalString("zipDest")
-    scheduler.schedule("Backup", system.actorOf(BackupActor.props(zipDest), "backup"), BackupActor.DoBackup())
+    val zipDest = config.getOptionalString("winbackup.archive-destination")
+    val maxZip = config.getOptionalInt("winbackup.archive-limit")
+    scheduler.schedule("Backup", system.actorOf(BackupActor.props(zipDest, maxZip), "backup"), BackupActor.DoBackup())
   }
 
   override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettingsService.SystemSettings): Unit = {
@@ -47,6 +47,14 @@ object ConfigHelper {
       Some(underlying.getString(path))
     } else {
       None
+    }
+
+    def getOptionalInt(path: String): Option[Int] = {
+      if (underlying.hasPath(path)) {
+        Some(underlying.getInt(path))
+      } else {
+        None
+      }
     }
   }
 
