@@ -3,19 +3,15 @@ package io.github.gitbucket.winbackup.rx
 import java.io.File
 
 import akka.actor.{Actor, Props}
-import akka.event.Logging
 import akka.pattern._
 import akka.util.Timeout
-import gitbucket.core.model.Profile.profile.blockingApi._
 import gitbucket.core.service.{AccountService, RepositoryService}
-import gitbucket.core.servlet.Database
-import gitbucket.core.util.JDBCUtil.RichConnection
 import gitbucket.core.util.{Directory => gDirectory}
 import io.github.gitbucket.winbackup.rx.BackupActor.DoBackup
+import io.github.gitbucket.winbackup.rx.DatabaseAccessActor.DumpDatabse
+import io.github.gitbucket.winbackup.rx.FinishingActor.Finishing
 import io.github.gitbucket.winbackup.rx.RepositoryCloneActor.Clone
 import io.github.gitbucket.winbackup.util.Directory
-import org.apache.commons.io.FileUtils
-import org.zeroturnaround.zip.ZipUtil
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -24,40 +20,24 @@ import scala.language.postfixOps
 
 class BackupActor(zipDest: Option[String]) extends Actor with AccountService with RepositoryService {
 
-  private val logger = Logging(context.system, this)
+  private val db = context.actorOf(DatabaseAccessActor.props, "db")
   private val cloner = context.actorOf(RepositoryCloneActor.props, "cloner")
+  private val packer = context.actorOf(FinishingActor.props(zipDest), "packer")
 
   override def receive: Receive = {
     case _: DoBackup => {
       val backupName = Directory.getBackupName
 
       val tempBackupDir = new File(gDirectory.GitBucketHome, backupName)
+      implicit val timeout: Timeout = Timeout(5 minutes)
 
-      Database() withTransaction { implicit session =>
-        val allTables = session.conn.allTableNames()
-        val sqlFile = session.conn.exportAsSQL(allTables)
-        val sqlBackup = new File(tempBackupDir, "gitbucket.sql")
-        FileUtils.copyFile(sqlFile, sqlBackup)
+      val repos = (db ? DumpDatabse(tempBackupDir.getAbsolutePath)).mapTo[List[Clone]]
 
-        implicit val timeout: Timeout = Timeout(1 minutes)
-
-        val repos = for {
-          user <- getAllUsers()
-          repo <- getRepositoryNamesOfUser(user.userName)
-        } yield {
-          Clone(tempBackupDir.getAbsolutePath, user.userName, repo)
-        }
-
-        val c = repos.map(cloner ? _)
+      repos foreach { r =>
+        val c = r.map(cloner ? _)
 
         Future.sequence(c) foreach { _ =>
-          val data = Directory.getDataBackupDir(tempBackupDir)
-          FileUtils.copyDirectory(new File(gDirectory.DatabaseHome), data)
-
-          val zip = new File(zipDest.getOrElse(gDirectory.GitBucketHome), s"${backupName}.zip")
-          ZipUtil.pack(tempBackupDir, zip)
-          FileUtils.deleteDirectory(tempBackupDir)
-          logger.info("Backup complete")
+          packer ! Finishing(tempBackupDir.getAbsolutePath, backupName)
         }
       }
     }
