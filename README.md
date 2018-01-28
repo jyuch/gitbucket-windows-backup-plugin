@@ -8,7 +8,7 @@ This plugin provides backup feature for below data.
 - Database contents
 - User repositories
 - Wiki repositories
-- Attachment files of issue
+- Attachment files of issue and release
 - User avatar data 
 
 ## Configuration
