@@ -2,7 +2,7 @@ import javax.servlet.ServletContext
 
 import akka.actor.ActorSystem
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.service.SystemSettingsService
 import io.github.gitbucket.solidbase.model.Version
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 class Plugin extends gitbucket.core.plugin.Plugin {
 
-  import ConfigHelper.RichConfig
+  import io.github.gitbucket.winbackup.util.ConfigHelper._
 
   override val pluginId: String = "winbackup"
   override val pluginName: String = "Backup Plugin for Windows"
@@ -40,22 +40,3 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   }
 }
 
-object ConfigHelper {
-
-  implicit class RichConfig(val underlying: Config) extends AnyVal {
-    def getOptionalString(path: String): Option[String] = if (underlying.hasPath(path)) {
-      Some(underlying.getString(path))
-    } else {
-      None
-    }
-
-    def getOptionalInt(path: String): Option[Int] = {
-      if (underlying.hasPath(path)) {
-        Some(underlying.getInt(path))
-      } else {
-        None
-      }
-    }
-  }
-
-}
