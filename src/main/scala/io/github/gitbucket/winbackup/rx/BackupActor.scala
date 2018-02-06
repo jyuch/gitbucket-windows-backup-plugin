@@ -5,7 +5,6 @@ import java.io.File
 import akka.actor.{Actor, Props}
 import akka.pattern._
 import akka.util.Timeout
-import gitbucket.core.service.{AccountService, RepositoryService}
 import gitbucket.core.util.{Directory => gDirectory}
 import io.github.gitbucket.winbackup.rx.BackupActor.DoBackup
 import io.github.gitbucket.winbackup.rx.DatabaseAccessActor.DumpDatabse
@@ -18,11 +17,11 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class BackupActor(zipDest: Option[String], maxZip: Option[Int]) extends Actor with AccountService with RepositoryService {
+class BackupActor extends Actor {
 
   private val db = context.actorOf(DatabaseAccessActor.props, "db")
   private val cloner = context.actorOf(RepositoryCloneActor.props, "cloner")
-  private val packer = context.actorOf(FinishingActor.props(zipDest, maxZip), "packer")
+  private val packer = context.actorOf(FinishingActor.props, "packer")
 
   override def receive: Receive = {
     case _: DoBackup => {
@@ -46,8 +45,8 @@ class BackupActor(zipDest: Option[String], maxZip: Option[Int]) extends Actor wi
 
 object BackupActor {
 
-  def props(zipDest: Option[String], maxZip: Option[Int]) = {
-    Props[BackupActor](new BackupActor(zipDest, maxZip))
+  def props() = {
+    Props[BackupActor]
   }
 
   sealed case class DoBackup()

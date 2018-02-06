@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory
 
 class Plugin extends gitbucket.core.plugin.Plugin {
 
-  import io.github.gitbucket.winbackup.util.ConfigHelper._
-
   override val pluginId: String = "winbackup"
   override val pluginName: String = "Backup Plugin for Windows"
   override val description: String = "Provides data backup for GitBucket on Windows"
@@ -29,9 +27,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     super.initialize(registry, context, settings)
 
     val scheduler = QuartzSchedulerExtension(system)
-    val zipDest = config.getOptionalString("winbackup.archive-destination")
-    val maxZip = config.getOptionalInt("winbackup.archive-limit")
-    scheduler.schedule("Backup", system.actorOf(BackupActor.props(zipDest, maxZip), "backup"), BackupActor.DoBackup())
+    scheduler.schedule("Backup", system.actorOf(BackupActor.props, "backup"), BackupActor.DoBackup())
   }
 
   override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettingsService.SystemSettings): Unit = {
