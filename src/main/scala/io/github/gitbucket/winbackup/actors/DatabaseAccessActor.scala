@@ -1,4 +1,4 @@
-package io.github.gitbucket.winbackup.rx
+package io.github.gitbucket.winbackup.actors
 
 import java.io.File
 
@@ -7,8 +7,8 @@ import gitbucket.core.model.Profile.profile.blockingApi._
 import gitbucket.core.service.{AccountService, RepositoryService}
 import gitbucket.core.servlet.Database
 import gitbucket.core.util.JDBCUtil.RichConnection
-import io.github.gitbucket.winbackup.rx.DatabaseAccessActor.DumpDatabse
-import io.github.gitbucket.winbackup.rx.RepositoryCloneActor.Clone
+import io.github.gitbucket.winbackup.actors.DatabaseAccessActor.DumpDatabse
+import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import org.apache.commons.io.FileUtils
 
 class DatabaseAccessActor extends Actor with AccountService with RepositoryService {

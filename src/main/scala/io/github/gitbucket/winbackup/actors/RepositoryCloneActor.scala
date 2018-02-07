@@ -1,11 +1,11 @@
-package io.github.gitbucket.winbackup.rx
+package io.github.gitbucket.winbackup.actors
 
 import java.io.File
 
 import akka.actor.{Actor, Props}
 import akka.event.Logging
 import gitbucket.core.util.{JGitUtil, Directory => gDirectory}
-import io.github.gitbucket.winbackup.rx.RepositoryCloneActor.Clone
+import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import io.github.gitbucket.winbackup.util.Directory
 import org.apache.commons.io.FileUtils
 

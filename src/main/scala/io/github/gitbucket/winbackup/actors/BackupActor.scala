@@ -1,4 +1,4 @@
-package io.github.gitbucket.winbackup.rx
+package io.github.gitbucket.winbackup.actors
 
 import java.io.File
 
@@ -6,10 +6,10 @@ import akka.actor.{Actor, Props}
 import akka.pattern._
 import akka.util.Timeout
 import gitbucket.core.util.{Directory => gDirectory}
-import io.github.gitbucket.winbackup.rx.BackupActor.DoBackup
-import io.github.gitbucket.winbackup.rx.DatabaseAccessActor.DumpDatabse
-import io.github.gitbucket.winbackup.rx.FinishingActor.Finishing
-import io.github.gitbucket.winbackup.rx.RepositoryCloneActor.Clone
+import io.github.gitbucket.winbackup.actors.BackupActor.DoBackup
+import io.github.gitbucket.winbackup.actors.DatabaseAccessActor.DumpDatabse
+import io.github.gitbucket.winbackup.actors.FinishingActor.Finishing
+import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import io.github.gitbucket.winbackup.util.Directory
 
 import scala.concurrent.ExecutionContext.Implicits.global

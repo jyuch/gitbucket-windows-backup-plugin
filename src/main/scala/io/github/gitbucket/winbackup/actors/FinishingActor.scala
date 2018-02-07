@@ -1,10 +1,10 @@
-package io.github.gitbucket.winbackup.rx
+package io.github.gitbucket.winbackup.actors
 
 import java.io.File
 
 import akka.actor.{Actor, ActorLogging, Props}
 import gitbucket.core.util.{Directory => gDirectory}
-import io.github.gitbucket.winbackup.rx.FinishingActor.Finishing
+import io.github.gitbucket.winbackup.actors.FinishingActor.Finishing
 import io.github.gitbucket.winbackup.service.PluginSettingsService
 import io.github.gitbucket.winbackup.util.Directory
 import org.apache.commons.io.FileUtils

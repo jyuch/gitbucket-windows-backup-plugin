@@ -1,16 +1,12 @@
 import javax.servlet.ServletContext
 
-import akka.actor.ActorSystem
-import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
-import com.typesafe.config.ConfigFactory
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.service.SystemSettingsService
 import io.github.gitbucket.solidbase.model.Version
-import io.github.gitbucket.winbackup.rx.BackupActor
-import io.github.gitbucket.winbackup.util.Directory
+import io.github.gitbucket.winbackup.service.ActorService
 import org.slf4j.LoggerFactory
 
-class Plugin extends gitbucket.core.plugin.Plugin {
+class Plugin extends gitbucket.core.plugin.Plugin with ActorService {
 
   override val pluginId: String = "winbackup"
   override val pluginName: String = "Backup Plugin for Windows"
@@ -19,20 +15,13 @@ class Plugin extends gitbucket.core.plugin.Plugin {
 
   private val logger = LoggerFactory.getLogger(classOf[Plugin])
 
-  private val config = ConfigFactory.parseFile(Directory.BackupConf)
-
-  private val system = ActorSystem("winbackup", config)
-
   override def initialize(registry: PluginRegistry, context: ServletContext, settings: SystemSettingsService.SystemSettings): Unit = {
     super.initialize(registry, context, settings)
-
-    val scheduler = QuartzSchedulerExtension(system)
-    scheduler.schedule("Backup", system.actorOf(BackupActor.props, "backup"), BackupActor.DoBackup())
+    initialize()
   }
 
   override def shutdown(registry: PluginRegistry, context: ServletContext, settings: SystemSettingsService.SystemSettings): Unit = {
-    system.terminate()
-    logger.info("Backup is shutting down.")
+    shutdown()
+    logger.info("{} is shutting down.", pluginName)
   }
 }
-
