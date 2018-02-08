@@ -18,6 +18,23 @@ object ConfigHelper {
         None
       }
     }
+
+    def getOptionalBoolean(path: String): Option[Boolean] = {
+      if (underlying.hasPath(path)) {
+        Some(underlying.getBoolean(path))
+      } else {
+        None
+      }
+    }
+
+    def getOptionalStringList(path: String): Option[List[String]] = {
+      import collection.JavaConverters._
+      if (underlying.hasPath(path)) {
+        Some(underlying.getStringList(path).asScala.toList)
+      } else {
+        None
+      }
+    }
   }
 
 }

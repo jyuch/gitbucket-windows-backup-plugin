@@ -12,7 +12,10 @@ trait PluginSettingsService {
     val config = ConfigFactory.parseFile(Directory.BackupConf)
     PluginSettings(
       config.getOptionalString("winbackup.archive-destination"),
-      config.getOptionalInt("winbackup.archive-limit")
+      config.getOptionalInt("winbackup.archive-limit"),
+      config.getOptionalBoolean("winbackup.notify-on-success").getOrElse(false),
+      config.getOptionalBoolean("winbackup.notify-on-failure").getOrElse(false),
+      config.getOptionalStringList("winbackup.notify-dest")
     )
   }
 }
@@ -20,6 +23,10 @@ trait PluginSettingsService {
 object PluginSettingsService {
 
   case class PluginSettings(archiveDestination: Option[String],
-                            archiveLimit: Option[Int])
+                            archiveLimit: Option[Int],
+                            notifyOnSuccess: Boolean,
+                            notifyOnFailure: Boolean,
+                            notifyDestination: Option[List[String]])
+
 
 }

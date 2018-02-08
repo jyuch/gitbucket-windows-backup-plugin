@@ -3,6 +3,7 @@ import javax.servlet.ServletContext
 import gitbucket.core.plugin.PluginRegistry
 import gitbucket.core.service.SystemSettingsService
 import io.github.gitbucket.solidbase.model.Version
+import io.github.gitbucket.winbackup.controllers.MailController
 import io.github.gitbucket.winbackup.service.ActorService
 import org.slf4j.LoggerFactory
 
@@ -24,4 +25,8 @@ class Plugin extends gitbucket.core.plugin.Plugin with ActorService {
     shutdown()
     logger.info("{} is shutting down.", pluginName)
   }
+
+  override val controllers = Seq(
+    "/*" -> new MailController
+  )
 }

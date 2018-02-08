@@ -1,16 +1,17 @@
 package io.github.gitbucket.winbackup.actors
 
-import java.io.File
+import java.io.{File, PrintWriter, StringWriter}
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import gitbucket.core.util.{Directory => gDirectory}
 import io.github.gitbucket.winbackup.actors.FinishingActor.Finishing
+import io.github.gitbucket.winbackup.actors.MailActor.{BackupFailure, BackupSuccess}
 import io.github.gitbucket.winbackup.service.PluginSettingsService
 import io.github.gitbucket.winbackup.util.Directory
 import org.apache.commons.io.FileUtils
 import org.zeroturnaround.zip.ZipUtil
 
-class FinishingActor extends Actor with ActorLogging with PluginSettingsService {
+class FinishingActor(mailer: ActorRef) extends Actor with ActorLogging with PluginSettingsService {
 
   private val config = loadPluginSettings()
 
@@ -44,13 +45,22 @@ class FinishingActor extends Actor with ActorLogging with PluginSettingsService 
       }
 
       log.info("Backup complete")
+      mailer ! BackupSuccess()
     }
+  }
+
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+    super.preRestart(reason, message)
+    val sw = new StringWriter()
+    val pw = new PrintWriter(sw)
+    reason.printStackTrace(pw)
+    mailer ! BackupFailure(sw.toString)
   }
 }
 
 object FinishingActor {
-  def props = {
-    Props[FinishingActor]
+  def props(mailer: ActorRef) = {
+    Props[FinishingActor](new FinishingActor(mailer))
   }
 
   sealed case class Finishing(baseDir: String, backupName: String)
