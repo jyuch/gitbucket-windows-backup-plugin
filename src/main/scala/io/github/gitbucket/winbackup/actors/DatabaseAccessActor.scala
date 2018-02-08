@@ -1,17 +1,18 @@
 package io.github.gitbucket.winbackup.actors
 
-import java.io.File
+import java.io.{File, PrintWriter, StringWriter}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import gitbucket.core.model.Profile.profile.blockingApi._
 import gitbucket.core.service.{AccountService, RepositoryService}
 import gitbucket.core.servlet.Database
 import gitbucket.core.util.JDBCUtil.RichConnection
 import io.github.gitbucket.winbackup.actors.DatabaseAccessActor.DumpDatabse
+import io.github.gitbucket.winbackup.actors.MailActor.BackupFailure
 import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import org.apache.commons.io.FileUtils
 
-class DatabaseAccessActor extends Actor with AccountService with RepositoryService {
+class DatabaseAccessActor(mailer: ActorRef) extends Actor with AccountService with RepositoryService {
   override def receive: Receive = {
     case DumpDatabse(baseDir) => {
 
@@ -31,11 +32,19 @@ class DatabaseAccessActor extends Actor with AccountService with RepositoryServi
       }
     }
   }
+
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+    super.preRestart(reason, message)
+    val sw = new StringWriter()
+    val pw = new PrintWriter(sw)
+    reason.printStackTrace(pw)
+    mailer ! BackupFailure(sw.toString)
+  }
 }
 
 object DatabaseAccessActor {
-  def props = {
-    Props[DatabaseAccessActor]
+  def props(mailer: ActorRef) = {
+    Props[DatabaseAccessActor](new DatabaseAccessActor(mailer))
   }
 
   sealed case class DumpDatabse(baseDir: String)

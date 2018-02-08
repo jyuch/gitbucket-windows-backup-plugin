@@ -6,9 +6,10 @@ import akka.actor.{Actor, Props}
 import akka.pattern._
 import akka.util.Timeout
 import gitbucket.core.util.{Directory => gDirectory}
-import io.github.gitbucket.winbackup.actors.BackupActor.DoBackup
+import io.github.gitbucket.winbackup.actors.BackupActor.{DoBackup, SendTestMail}
 import io.github.gitbucket.winbackup.actors.DatabaseAccessActor.DumpDatabse
 import io.github.gitbucket.winbackup.actors.FinishingActor.Finishing
+import io.github.gitbucket.winbackup.actors.MailActor.TestMail
 import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import io.github.gitbucket.winbackup.util.Directory
 
@@ -19,12 +20,13 @@ import scala.language.postfixOps
 
 class BackupActor extends Actor {
 
-  private val db = context.actorOf(DatabaseAccessActor.props, "db")
-  private val cloner = context.actorOf(RepositoryCloneActor.props, "cloner")
-  private val packer = context.actorOf(FinishingActor.props, "packer")
+  private val mailer = context.actorOf(Props[MailActor], "mailer")
+  private val db = context.actorOf(DatabaseAccessActor.props(mailer), "db")
+  private val cloner = context.actorOf(RepositoryCloneActor.props(mailer), "cloner")
+  private val packer = context.actorOf(FinishingActor.props(mailer), "packer")
 
   override def receive: Receive = {
-    case _: DoBackup => {
+    case DoBackup() => {
       val backupName = Directory.getBackupName
 
       val tempBackupDir = new File(gDirectory.GitBucketHome, backupName)
@@ -40,6 +42,9 @@ class BackupActor extends Actor {
         }
       }
     }
+    case SendTestMail() => {
+      mailer ! TestMail()
+    }
   }
 }
 
@@ -50,5 +55,7 @@ object BackupActor {
   }
 
   sealed case class DoBackup()
+
+  sealed case class SendTestMail()
 
 }

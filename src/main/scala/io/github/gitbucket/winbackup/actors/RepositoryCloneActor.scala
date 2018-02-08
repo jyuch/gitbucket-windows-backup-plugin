@@ -1,15 +1,16 @@
 package io.github.gitbucket.winbackup.actors
 
-import java.io.File
+import java.io.{File, PrintWriter, StringWriter}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.event.Logging
 import gitbucket.core.util.{JGitUtil, Directory => gDirectory}
+import io.github.gitbucket.winbackup.actors.MailActor.BackupFailure
 import io.github.gitbucket.winbackup.actors.RepositoryCloneActor.Clone
 import io.github.gitbucket.winbackup.util.Directory
 import org.apache.commons.io.FileUtils
 
-class RepositoryCloneActor extends Actor {
+class RepositoryCloneActor(mailer: ActorRef) extends Actor {
   private[this] val logger = Logging(context.system, this)
 
   override def receive: Receive = {
@@ -32,11 +33,19 @@ class RepositoryCloneActor extends Actor {
       sender() ! ((): Unit)
     }
   }
+
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+    super.preRestart(reason, message)
+    val sw = new StringWriter()
+    val pw = new PrintWriter(sw)
+    reason.printStackTrace(pw)
+    mailer ! BackupFailure(sw.toString)
+  }
 }
 
 object RepositoryCloneActor {
-  def props = {
-    Props[RepositoryCloneActor]
+  def props(mailer: ActorRef) = {
+    Props[RepositoryCloneActor](new RepositoryCloneActor(mailer))
   }
 
   sealed case class Clone(baseDir: String, user: String, repo: String)
