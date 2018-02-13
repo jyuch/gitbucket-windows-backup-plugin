@@ -60,6 +60,7 @@ Send HTTP Post to `http://localhost:8080/api/v3/winback/mailtest` when you want 
 
 |Plugin version|GitBucket version|
 |:-:|:-:|
+|0.4.0|4.21|
 |0.3.0|4.21|
 |0.2.0|4.20|
 |0.1.0|4.20|
