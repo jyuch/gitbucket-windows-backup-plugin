@@ -15,7 +15,12 @@ trait PluginSettingsService {
       config.getOptionalInt("winbackup.archive-limit"),
       config.getOptionalBoolean("winbackup.notify-on-success").getOrElse(false),
       config.getOptionalBoolean("winbackup.notify-on-failure").getOrElse(false),
-      config.getOptionalStringList("winbackup.notify-dest")
+      config.getOptionalStringList("winbackup.notify-dest"),
+      config.getOptionalString("winbackup.s3.endpoint"),
+      config.getOptionalString("winbackup.s3.region"),
+      config.getOptionalString("winbackup.s3.access-key"),
+      config.getOptionalString("winbackup.s3.secret-key"),
+      config.getOptionalString("winbackup.s3.bucket")
     )
   }
 }
@@ -26,7 +31,12 @@ object PluginSettingsService {
                             archiveLimit: Option[Int],
                             notifyOnSuccess: Boolean,
                             notifyOnFailure: Boolean,
-                            notifyDestination: Option[List[String]])
+                            notifyDestination: Option[List[String]],
+                            endpoint: Option[String],
+                            region: Option[String],
+                            accessKey: Option[String],
+                            secretKey: Option[String],
+                            bucket: Option[String])
 
 
 }
