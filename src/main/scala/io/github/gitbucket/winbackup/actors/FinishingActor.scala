@@ -3,8 +3,14 @@ package io.github.gitbucket.winbackup.actors
 import java.io.{File, PrintWriter, StringWriter}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.amazonaws.ClientConfiguration
+import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.s3.model.PutObjectRequest
 import gitbucket.core.util.{Directory => gDirectory}
-import io.github.gitbucket.winbackup.actors.FinishingActor.Finishing
+import io.github.gitbucket.winbackup.actors.FinishingActor.{Finishing, S3Config}
 import io.github.gitbucket.winbackup.actors.MailActor.{BackupFailure, BackupSuccess}
 import io.github.gitbucket.winbackup.service.PluginSettingsService
 import io.github.gitbucket.winbackup.util.Directory
@@ -24,7 +30,6 @@ class FinishingActor(mailer: ActorRef) extends Actor with ActorLogging with Plug
 
       val zip = new File(config.archiveDestination.getOrElse(gDirectory.GitBucketHome), s"${backupName}.zip")
       ZipUtil.pack(tempBackupDir, zip)
-      FileUtils.deleteDirectory(tempBackupDir)
 
       config.archiveLimit foreach { n =>
         if (n > 0) {
@@ -43,6 +48,34 @@ class FinishingActor(mailer: ActorRef) extends Actor with ActorLogging with Plug
           })
         }
       }
+
+      val s3Config = for {
+        endpoint <- config.endpoint
+        region <- config.region
+        accessKey <- config.accessKey
+        secretKey <- config.secretKey
+        bucket <- config.bucket
+      } yield S3Config(endpoint, region, accessKey, secretKey, bucket)
+
+      s3Config foreach { s3 =>
+        val credentials = new BasicAWSCredentials(s3.accessKey, s3.secretKey)
+        val clientConfiguration = new ClientConfiguration
+        clientConfiguration.setSignerOverride("AWSS3V4SignerType")
+
+        val s3Client = AmazonS3ClientBuilder
+          .standard()
+          .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3.endpoint, s3.region))
+          .withPathStyleAccessEnabled(true)
+          .withClientConfiguration(clientConfiguration)
+          .withCredentials(new AWSStaticCredentialsProvider(credentials))
+          .build()
+
+        s3Client.putObject(new PutObjectRequest(s3.bucket, zip.getName, zip))
+
+        log.info("Upload to Object storage complete")
+      }
+
+      FileUtils.deleteDirectory(tempBackupDir)
 
       log.info("Backup complete")
       mailer ! BackupSuccess()
@@ -64,5 +97,11 @@ object FinishingActor {
   }
 
   sealed case class Finishing(baseDir: String, backupName: String)
+
+  case class S3Config(endpoint: String,
+                      region: String,
+                      accessKey: String,
+                      secretKey: String,
+                      bucket: String)
 
 }
