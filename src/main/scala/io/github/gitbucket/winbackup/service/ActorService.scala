@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import com.typesafe.akka.extension.quartz.QuartzSchedulerExtension
 import com.typesafe.config.ConfigFactory
 import io.github.gitbucket.winbackup.actors.BackupActor
-import io.github.gitbucket.winbackup.actors.BackupActor.SendTestMail
+import io.github.gitbucket.winbackup.actors.BackupActor.{DoBackup, SendTestMail}
 import io.github.gitbucket.winbackup.util.Directory
 
 trait ActorService {
@@ -21,6 +21,10 @@ trait ActorService {
 
   def sendTestMail(): Unit = {
     backupActor ! SendTestMail()
+  }
+
+  def executeBackup(): Unit = {
+    backupActor ! DoBackup()
   }
 
 }

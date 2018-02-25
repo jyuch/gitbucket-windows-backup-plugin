@@ -14,6 +14,13 @@ class MailController extends ControllerBase with AdminAuthenticator with ActorSe
     }
   }
 
+  post("/api/v3/winback/execute-backup") {
+    adminOnly {
+      executeBackup()
+      Ok()
+    }
+  }
+
   override def shutdown(): Unit = {
     super[ControllerBase].shutdown()
   }
