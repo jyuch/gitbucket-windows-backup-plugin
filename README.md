@@ -80,7 +80,7 @@ Send HTTP Post to `http://localhost:8080/api/v3/winback/execute-backup` with adm
 
 ## Restoring backup
 
-1. Execute Gitbucket once.
+1. Execute GitBucket once.
 1. Copy `data` and `repositories` from backup archive file to `GITBUCKET_HOME`.
 1. Import `gitbucket.sql` from `System administration` -> `Data export/import`.
 1. Re-configure other plugins.
