@@ -47,6 +47,24 @@ winbackup {
 
   # Notify email destination (Optional)
   notify-dest = ["jyuch@localhost"]
+
+  # S3 compatible object storage for backup upload (Optional)
+  s3 {
+    # Endpoing URL
+    endpoint = "http://localhost:9000"
+
+    # Region
+    region = "US_EAST_1"
+
+    # Access key
+    access-key = "access-key"
+
+    # Secret key
+    secret-key = "secret-key"
+
+    # Bucket of backup destination
+    bucket = "gitbucket"
+  }
 }
 ```
 
@@ -54,12 +72,40 @@ And you need to setup gitbucket SMTP configuration when use email notification.
 
 ## Send test mail
 
-Send HTTP Post to `http://localhost:8080/api/v3/winback/mailtest` when you want to send test mail.
+Send HTTP Post to `http://localhost:8080/api/v3/winback/mailtest` with administrator authority when you want to send test mail.
+
+## On demand backup
+
+Send HTTP Post to `http://localhost:8080/api/v3/winback/execute-backup` with administrator authority when you want to execute backup soon.
+
+## Restoring backup
+
+1. Execute Gitbucket once.
+1. Copy `data` and `repositories` from backup archive file to `GITBUCKET_HOME`.
+1. Import `gitbucket.sql` from `System administration` -> `Data export/import`.
+1. Re-configure other plugins.
+
+If you are using PostgreSQL, you have to run following to the setup sequence values:
+
+``` sql
+SELECT setval('label_label_id_seq', (select max(label_id) + 1 from label));
+SELECT setval('activity_activity_id_seq', (select max(activity_id) + 1 from activity));
+SELECT setval('access_token_access_token_id_seq', (select max(access_token_id) + 1 from access_token));
+SELECT setval('commit_comment_comment_id_seq', (select max(comment_id) + 1 from commit_comment));
+SELECT setval('commit_status_commit_status_id_seq', (select max(commit_status_id) + 1 from commit_status));
+SELECT setval('milestone_milestone_id_seq', (select max(milestone_id) + 1 from milestone));
+SELECT setval('issue_comment_comment_id_seq', (select max(comment_id) + 1 from issue_comment));
+SELECT setval('ssh_key_ssh_key_id_seq', (select max(ssh_key_id) + 1 from ssh_key));
+SELECT setval('priority_priority_id_seq', (select max(priority_id) + 1 from priority));
+```
+
+For more details, see [External database configuration](https://github.com/gitbucket/gitbucket/wiki/External-database-configuration#postgresql).
 
 ## Compatibility with GitBucket
 
 |Plugin version|GitBucket version|
 |:-:|:-:|
+|0.5.0|4.21|
 |0.4.0|4.21|
 |0.3.0|4.21|
 |0.2.0|4.20|
