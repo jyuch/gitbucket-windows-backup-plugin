@@ -104,8 +104,8 @@ For more details, see [External database configuration](https://github.com/gitbu
 ## Compatibility with GitBucket
 
 |Plugin version|GitBucket version|
-|:-:|:-:|
-|0.5.0|4.21|
+|:-:|:-|
+|0.5.0|4.21-4.22|
 |0.4.0|4.21|
 |0.3.0|4.21|
 |0.2.0|4.20|
