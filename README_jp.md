@@ -104,8 +104,8 @@ SELECT setval('priority_priority_id_seq', (select max(priority_id) + 1 from prio
 ## 各バージョンのGitBucketとの互換性
 
 |プラグインバージョン|GitBucketバージョン|
-|:-:|:-:|
-|0.5.0|4.21|
+|:-:|:-|
+|0.5.0|4.21-4.22|
 |0.4.0|4.21|
 |0.3.0|4.21|
 |0.2.0|4.20|
