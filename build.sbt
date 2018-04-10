@@ -1,8 +1,8 @@
 name := "gitbucket-windows-backup-plugin"
 organization := "io.github.gitbucket"
-version := "0.5.0"
-scalaVersion := "2.12.4"
-gitbucketVersion := "4.21.0"
+version := "0.6.0"
+scalaVersion := "2.12.5"
+gitbucketVersion := "4.23.1"
 
 libraryDependencies ++= Seq(
   "org.zeroturnaround" % "zt-zip" % "1.12",
