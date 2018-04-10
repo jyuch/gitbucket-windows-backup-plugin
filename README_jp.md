@@ -20,11 +20,13 @@ GitBucketのバックアップ機能を提供します。
 # バックアップタイミング（必須）
 # 詳細は http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html を参照してください。
 # この例では毎日午前0時にバックアップを実行します
+# また、タイムゾーンは明示しないとUTCとなる為、Asia/Tokyoを明示的に指定します 
 akka {
   quartz {
     schedules {
       Backup {
         expression = "0 0 0 * * ?"
+        timezone = "Asia/Tokyo"
       }
     }
   }
@@ -105,6 +107,7 @@ SELECT setval('priority_priority_id_seq', (select max(priority_id) + 1 from prio
 
 |プラグインバージョン|GitBucketバージョン|
 |:-:|:-|
+|0.6.0|4.23|
 |0.5.0|4.21-4.22|
 |0.4.0|4.21|
 |0.3.0|4.21|
