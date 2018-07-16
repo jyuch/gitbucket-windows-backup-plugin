@@ -1,12 +1,12 @@
 name := "gitbucket-windows-backup-plugin"
 organization := "io.github.gitbucket"
-version := "0.6.0"
-scalaVersion := "2.12.5"
-gitbucketVersion := "4.23.1"
+version := "0.7.0"
+scalaVersion := "2.12.6"
+gitbucketVersion := "4.26.0"
 
 libraryDependencies ++= Seq(
-  "org.zeroturnaround" % "zt-zip" % "1.12",
-  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.277"
+  "org.zeroturnaround" % "zt-zip" % "1.13",
+  "com.amazonaws" % "aws-java-sdk-s3" % "1.11.368"
 )
 
 scalacOptions ++= Seq("-deprecation", "-feature")
