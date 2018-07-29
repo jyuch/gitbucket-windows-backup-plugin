@@ -25,10 +25,14 @@ class FinishingActor(mailer: ActorRef) extends Actor with ActorLogging with Plug
     case Finishing(baseDir, backupName) => {
       val tempBackupDir = new File(baseDir)
 
+      val srcDataDir = new File(gDirectory.DatabaseHome)
       val data = Directory.getDataBackupDir(tempBackupDir)
-      FileUtils.copyDirectory(new File(gDirectory.DatabaseHome), data)
 
-      val zip = new File(config.archiveDestination.getOrElse(gDirectory.GitBucketHome), s"${backupName}.zip")
+      if (srcDataDir.exists()) {
+        FileUtils.copyDirectory(srcDataDir, data)
+      }
+
+      val zip = new File(config.archiveDestination.getOrElse(gDirectory.GitBucketHome), s"$backupName.zip")
       ZipUtil.pack(tempBackupDir, zip)
 
       config.archiveLimit foreach { n =>
@@ -92,7 +96,7 @@ class FinishingActor(mailer: ActorRef) extends Actor with ActorLogging with Plug
 }
 
 object FinishingActor {
-  def props(mailer: ActorRef) = {
+  def props(mailer: ActorRef): Props = {
     Props[FinishingActor](new FinishingActor(mailer))
   }
 
