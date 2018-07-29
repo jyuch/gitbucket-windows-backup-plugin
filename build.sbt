@@ -1,6 +1,6 @@
 name := "gitbucket-windows-backup-plugin"
 organization := "io.github.gitbucket"
-version := "0.7.0"
+version := "0.8.0"
 scalaVersion := "2.12.6"
 gitbucketVersion := "4.27.0"
 
