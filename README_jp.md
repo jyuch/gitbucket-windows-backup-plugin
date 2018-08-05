@@ -2,6 +2,8 @@ gitbucket-windows-backup-plugin
 ===
 GitBucketのバックアップ機能を提供します。
 
+**このプラグインの開発は[gitbucket-backup-plugin](https://github.com/jyuch/gitbucket-backup-plugin)に移動しました。**
+
 ## 機能
 この以下のデータの定期的なバックアップを実行します。
 

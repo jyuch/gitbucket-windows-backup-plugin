@@ -2,6 +2,8 @@ gitbucket-windows-backup-plugin
 ===
 Provides repository backup for GitBucket on Windows
 
+**This repository has been archived and moved to [gitbucket-backup-plugin](https://github.com/jyuch/gitbucket-backup-plugin).**
+
 ## Features
 This plugin provides backup feature for below data.
 
